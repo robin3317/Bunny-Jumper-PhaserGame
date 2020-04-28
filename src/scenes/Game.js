@@ -31,13 +31,19 @@ class Game extends Phaser.Scene {
       .sprite(240, 320, 'bunny-stand')
       .setScale(0.5);
 
+    this.player.body.checkCollision.up = false;
+    this.player.body.checkCollision.left = false;
+    this.player.body.checkCollision.right = false;
+
     this.physics.add.collider(platforms, this.player);
+
+    this.cameras.main.startFollow(this.player);
   }
 
   update() {
     const touchingDown = this.player.body.touching.down;
     if (touchingDown) {
-      this.player.setVelocity(-300);
+      this.player.setVelocity(0, -300);
     }
   }
 }
