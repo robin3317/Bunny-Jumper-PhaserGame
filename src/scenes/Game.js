@@ -4,6 +4,7 @@ class Game extends Phaser.Scene {
   constructor() {
     super('game');
     this.player = null;
+    this.platforms = null;
   }
 
   preload() {
@@ -13,14 +14,15 @@ class Game extends Phaser.Scene {
   }
 
   create() {
-    this.add.image(240, 320, 'background');
+    this.add.image(240, 320, 'background').setScrollFactor(1, 0);
 
-    const platforms = this.physics.add.staticGroup();
+    this.platforms = this.physics.add.staticGroup();
+
     for (let i = 0; i < 5; i++) {
       const x = Phaser.Math.Between(80, 400);
       const y = 150 * i;
 
-      const platform = platforms.create(x, y, 'platform');
+      const platform = this.platforms.create(x, y, 'platform');
       platform.scale = 0.5;
 
       const body = platform.body;
@@ -35,15 +37,26 @@ class Game extends Phaser.Scene {
     this.player.body.checkCollision.left = false;
     this.player.body.checkCollision.right = false;
 
-    this.physics.add.collider(platforms, this.player);
+    this.physics.add.collider(this.platforms, this.player);
 
     this.cameras.main.startFollow(this.player);
   }
 
   update() {
+    this.platforms.children.iterate((child) => {
+      const platform = child;
+
+      const scrollY = this.cameras.main.scrollY;
+
+      if (platform.y >= scrollY + 700) {
+        platform.y = scrollY - Phaser.Math.Between(50, 100);
+        platform.body.updateFromGameObject();
+      }
+    });
+
     const touchingDown = this.player.body.touching.down;
     if (touchingDown) {
-      this.player.setVelocity(0, -300);
+      this.player.setVelocityY(-300);
     }
   }
 }
